@@ -38,8 +38,8 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    public String addNewUser(@RequestBody UserInfo userInfo){
-        return userService.addUser(userInfo);
+    public ResponseEntity<String> addNewUser(@RequestBody UserInfo userInfo){
+        return new ResponseEntity<>(userService.addUser((userInfo)),HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")

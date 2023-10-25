@@ -1,0 +1,14 @@
+#spring:
+#  jpa:
+#    generate-ddl: 'true'
+#    database-platform: org.hibernate.dialect.MySQLDialect
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: 'true'
+#  datasource:
+#    username: ${JAWSDB_USERNAME:root}
+#    url: jdbc:mysql://${JAWSDB_HOST:localhost}:${JAWSDB_PORT:3306}/${JAWSDB_DB_NAME:rentalapp}
+#    password: ${JAWSDB_PASSWORD:mistret123}
+#server:
+#  error:
+#    include-message: always

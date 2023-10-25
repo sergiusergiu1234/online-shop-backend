@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/attributes")
+@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
 public class AttributeController {
     @Autowired
     AttributeService attributeService;

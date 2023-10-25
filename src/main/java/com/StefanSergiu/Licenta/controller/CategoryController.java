@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/categories")
+@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
 public class CategoryController {
     @Autowired
     CategoryService categoryService;

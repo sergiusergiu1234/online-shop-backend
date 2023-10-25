@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/types")
+@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
 public class TypeController {
 
     @Autowired

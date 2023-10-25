@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/size")
+@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
 public class SizeController {
 
 

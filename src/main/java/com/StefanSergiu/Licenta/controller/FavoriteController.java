@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/favorites")
+@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
 public class FavoriteController {
     @Autowired
     FavoriteService favoriteService;

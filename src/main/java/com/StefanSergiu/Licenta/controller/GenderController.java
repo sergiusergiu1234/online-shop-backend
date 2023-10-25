@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/genders")
-@CrossOrigin(origins = "http://localhost:3000")
 public class GenderController {
     @Autowired
     GenderService genderService;

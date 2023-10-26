@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/order")
-@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
+@CrossOrigin(origins = "https://slope-emporium.vercel.app")
 public class OrderController {
 
     @Autowired

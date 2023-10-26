@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/genders")
-@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
+@CrossOrigin(origins = "https://slope-emporium.vercel.app")
 
 public class GenderController {
     @Autowired

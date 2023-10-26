@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/shoppingCart")
-@CrossOrigin(origins = "https://online-shop-frontend-nine.vercel.app")
+@CrossOrigin(origins = "https://slope-emporium.vercel.app")
 public class ShoppingCartController {
     @Autowired
     ShoppingCartService shoppingCartService;

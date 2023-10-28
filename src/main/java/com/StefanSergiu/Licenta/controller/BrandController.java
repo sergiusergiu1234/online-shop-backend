@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/brands")
-@CrossOrigin(origins = "https://slope-emporium.vercel.app/")
+@CrossOrigin(origins = {"https://slope-emporium.vercel.app","http://localhost:3000"})
 public class BrandController {
     @Autowired
     BrandService brandService;

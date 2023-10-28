@@ -20,8 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/order")
-@CrossOrigin(origins = "https://slope-emporium.vercel.app")
-public class OrderController {
+@CrossOrigin(origins = {"https://slope-emporium.vercel.app","http://localhost:3000"})public class OrderController {
 
     @Autowired
     OrderService orderService;

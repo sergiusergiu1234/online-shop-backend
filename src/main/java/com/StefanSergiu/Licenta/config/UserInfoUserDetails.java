@@ -1,6 +1,7 @@
 package com.StefanSergiu.Licenta.config;
 
 import com.StefanSergiu.Licenta.entity.UserInfo;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,11 +14,14 @@ import java.util.stream.Collectors;
 public class UserInfoUserDetails implements UserDetails {
     private String username;
     private String password;
+    @Getter
+    private int id;
     private List<GrantedAuthority> authorities;
 
     public UserInfoUserDetails(UserInfo userInfo) {
         username =userInfo.getUsername();
         password=userInfo.getPassword();
+        id= userInfo.getId();
         authorities= Arrays.stream(userInfo.getRoles().split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
@@ -55,4 +59,5 @@ public class UserInfoUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

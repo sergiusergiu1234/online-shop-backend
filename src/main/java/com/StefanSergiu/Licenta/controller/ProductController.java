@@ -41,7 +41,7 @@ import static org.apache.http.entity.ContentType.*;
 
 @RestController
 @RequestMapping("/products")
-@CrossOrigin(origins = "https://slope-emporium.vercel.app")
+@CrossOrigin(origins = {"https://slope-emporium.vercel.app","http://localhost:3000"})
 public class ProductController {
     @Autowired
     ProductService productService;

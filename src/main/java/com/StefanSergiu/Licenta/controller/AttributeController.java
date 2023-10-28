@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/attributes")
-@CrossOrigin(origins = "https://slope-emporium.vercel.app/")
+@CrossOrigin(origins = {"https://slope-emporium.vercel.app","http://localhost:3000"})
 public class AttributeController {
     @Autowired
     AttributeService attributeService;

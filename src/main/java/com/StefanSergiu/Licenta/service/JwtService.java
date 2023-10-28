@@ -6,8 +6,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import java.security.Key;
 import java.util.Date;
@@ -19,6 +23,7 @@ import java.util.function.Function;
 public class JwtService {
 
     public static final String SECRET = "556B58703273357538782F413F4428472B4B6250655368566D59713374367739";
+    private String jwtRefreshCookie = "jwt-refresh";
 
 
     public String extractUsername(String token){
@@ -68,4 +73,31 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+//refresh token side
+    public ResponseCookie generateRefreshJwtCookie(String refreshToken){
+        return generateCookie(jwtRefreshCookie, refreshToken, "/users/refreshToken");
+    }
+
+    public String getJwtRefreshFromCookies(HttpServletRequest request){
+        return getCookieValueByName(request,jwtRefreshCookie);
+    }
+
+    public ResponseCookie getCleanJwtRefreshCookie() {
+        ResponseCookie cookie = ResponseCookie.from(jwtRefreshCookie, null).path("/users/refreshToken").build();
+        return cookie;
+    }
+
+    private ResponseCookie generateCookie(String name, String value, String path) {
+        ResponseCookie cookie = ResponseCookie.from(name, value).path(path).maxAge(24 * 60 * 60).httpOnly(true).build();
+        return cookie;
+    }
+
+    private String getCookieValueByName(HttpServletRequest request, String name) {
+        Cookie cookie = WebUtils.getCookie(request, name);
+        if (cookie != null) {
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
 }

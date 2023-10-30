@@ -19,7 +19,7 @@ public class UserInfoUserDetailsService implements UserDetailsService {
         Optional<UserInfo> userInfo=repository.findByUsername(username);
 
         return userInfo.map(UserInfoUserDetails::new)
-                .orElseThrow(()->new UsernameNotFoundException("User not found"+ username));
+                .orElseThrow(()->new UsernameNotFoundException("User not found "+ username));
 
     }
 }

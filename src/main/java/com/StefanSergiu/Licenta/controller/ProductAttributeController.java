@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/productAttributes")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","https://slope-emporium.vercel.app"})
 public class ProductAttributeController {
     @Autowired
     ProductAttributeService productAttributeService;

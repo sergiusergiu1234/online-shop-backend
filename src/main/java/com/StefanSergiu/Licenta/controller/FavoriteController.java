@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/favorites")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","https://slope-emporium.vercel.app"})
 public class FavoriteController {
     @Autowired
     FavoriteService favoriteService;

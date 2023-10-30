@@ -41,7 +41,7 @@ import static org.apache.http.entity.ContentType.*;
 
 @RestController
 @RequestMapping("/products")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","https://slope-emporium.vercel.app"})
 public class ProductController {
     @Autowired
     ProductService productService;
@@ -260,4 +260,9 @@ public class ProductController {
         return productService.getSizesByTypeId(typeId);
     }
 
+    @GetMapping("/admin/{productId}")
+    public ResponseEntity<ProductDto> getProductById(@PathVariable("productId") Long productId){
+        Product product = productService.getProduct(productId);
+        return new ResponseEntity<>(ProductDto.from(product),HttpStatus.OK);
+    }
 }

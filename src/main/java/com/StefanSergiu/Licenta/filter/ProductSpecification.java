@@ -23,7 +23,7 @@ public class ProductSpecification {
         List<Predicate> predicates = new ArrayList<>();
 
         //filter by type
-        if(request.getType_name() != null ){
+        if(request.getType_name() != null && !request.getType_name().isEmpty()){
             Join<Product, Category> categoryJoin = root.join("category");
             Join<Category,Type> typeJoin = categoryJoin.join("type");
 
@@ -68,7 +68,7 @@ public class ProductSpecification {
         }
 
         // filter by brand names
-        if (request.getBrands() != null && !request.getBrands().isEmpty()) {
+        if (request.getBrands() != null && !request.getBrands().isEmpty()){
             String[] brandNames = request.getBrands().split(",");
             List<String> brandList = Arrays.asList(brandNames);
             Join<Product, Brand> brandJoin = root.join("brand");
@@ -83,7 +83,7 @@ public class ProductSpecification {
             predicates.add(genderJoin.get("name").in(genderList));
         }
 
-        if (request.getName()!= null && !request.getName().isEmpty()) {
+        if (request.getName() != null && !request.getName().isEmpty()) {
             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),
                     "%" + request.getName().toLowerCase() + "%"));
         }

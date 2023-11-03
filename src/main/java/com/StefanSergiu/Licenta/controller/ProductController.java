@@ -108,7 +108,7 @@ public class ProductController {
 
         Page<ProductCardDto> productsPage = productService.getAllProducts(request, pageable);
 
-        CacheControl cacheControl = CacheControl.maxAge(3, TimeUnit.DAYS);
+        CacheControl cacheControl = CacheControl.maxAge(1, TimeUnit.MINUTES);
         return ResponseEntity.ok().cacheControl(cacheControl).body(productsPage);
     }
     @PreAuthorize("permitAll()")

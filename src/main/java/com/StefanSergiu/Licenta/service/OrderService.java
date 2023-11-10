@@ -72,7 +72,7 @@ public class OrderService {
             newOrderDetail.setOrderItem(newOrderItem);
             newOrderDetail.setQuantity(shoppingCart.getQuantity());
             newOrderDetail.setPrice(shoppingCart.getPrice());
-            newOrderDetail.setSize(shoppingCart.getProduct().getSize());
+          //  newOrderDetail.setSize(shoppingCart.getProduct().getSize());
             newOrder.setTotal(newOrder.getTotal()+ newOrderDetail.getPrice());
 
             productService.decreaseStock(shoppingCart.getQuantity(),shoppingCart.getProduct().getId());

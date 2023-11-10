@@ -32,7 +32,7 @@ public class ProductDto {
     private String description;
     private Boolean isFavorite;
     private byte[] image;
-    private String size;
+
     private Long stock;
     //**
     private List<PlainProductAttributeDto> attributes = new ArrayList<>();
@@ -42,7 +42,7 @@ public class ProductDto {
         productDto.setName(product.getName());
         productDto.setPrice(product.getPrice());
         productDto.setDescription(product.getDescription());
-        productDto.setSize(product.getSize());
+
         productDto.setStock(product.getStock());
         if(Objects.nonNull(product.getBrand())){
             productDto.setBrand(PlainBrandDto.from(product.getBrand()));
@@ -66,7 +66,7 @@ public class ProductDto {
         productDto.setName(product.getName());
         productDto.setPrice(product.getPrice());
         productDto.setDescription(product.getDescription());
-        productDto.setSize(product.getSize());
+
         if(Objects.nonNull(product.getBrand())){
             productDto.setBrand(PlainBrandDto.from(product.getBrand()));
         }

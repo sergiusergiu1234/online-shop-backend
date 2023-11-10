@@ -2,7 +2,6 @@ package com.StefanSergiu.Licenta.filter;
 
 
 
-import com.StefanSergiu.Licenta.dto.product.ProductDto;
 import com.StefanSergiu.Licenta.dto.product.ProductRequestModel;
 import com.StefanSergiu.Licenta.entity.*;
 import jakarta.persistence.criteria.Join;
@@ -26,7 +25,6 @@ public class ProductSpecification {
         if(request.getType_name() != null && !request.getType_name().isEmpty()){
             Join<Product, Category> categoryJoin = root.join("category");
             Join<Category,Type> typeJoin = categoryJoin.join("type");
-
             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(typeJoin.get("name")),
                        request.getType_name()));
         }
@@ -34,37 +32,32 @@ public class ProductSpecification {
         // filter by attribute name and value
         //check if attribute and values are not null
         if (request.getAttributes() != null && !request.getAttributes().isEmpty()) {
-
             List<Predicate> attributePredicates = new ArrayList<>();
-
             for (Map.Entry<String, String> entry : request.getAttributes().entrySet()) {
-
                 String attributeName = entry.getKey();
                 String attributeValueString = entry.getValue();
-
                 //generate list from the value "red,green,blue" becomes [red, green, blue]
                 List<String> attributeValues = Arrays.asList(attributeValueString.split(","));
-
                 Join<Product, ProductAttribute> productAttributeJoin = root.join("productAttributes");
                 Join<ProductAttribute, Attribute> attributeJoin = productAttributeJoin.join("attribute");
-
                 Predicate attributeNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(attributeJoin.get("name")),
                         "%" + attributeName.toLowerCase() + "%");
-
                 Predicate attributeValuePredicate = productAttributeJoin.get("value").in(attributeValues);
-
                 attributePredicates.add(criteriaBuilder.and(attributeNamePredicate, attributeValuePredicate));
             }
             Predicate attributeCombinedPredicate = criteriaBuilder.or(attributePredicates.toArray(new Predicate[0]));
-
             predicates.add(attributeCombinedPredicate);
         }
 
-        //filter by sizes
-        if(request.getSizes() != null && !request.getSizes().isEmpty()){
+//        //filter by sizes
+        if (request.getSizes() != null && !request.getSizes().isEmpty()) {
             String[] sizeValues = request.getSizes().split(",");
             List<String> sizeList = Arrays.asList(sizeValues);
-            predicates.add(root.get("size").in(sizeList));
+
+            Join<Product, ProductSize> productSizeJoin = root.join("productSizes");
+            Join<ProductSize, Size> sizeJoin = productSizeJoin.join("size");
+
+            predicates.add(sizeJoin.get("sizeValue").in(sizeList));
         }
 
         // filter by brand names
@@ -103,11 +96,6 @@ public class ProductSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), request.getMaxPrice()));
             }
         }
-        //select name
-        query.multiselect(root.get("name"));
-
-        //group by name
-        query.groupBy(root.get("name"));
 
         //order by
         query.orderBy(criteriaBuilder.desc(root.get("price")));

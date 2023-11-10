@@ -19,11 +19,12 @@ public class Type {
     @OneToMany(mappedBy = "type",cascade =CascadeType.ALL,fetch = FetchType.EAGER,orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "type", cascade = CascadeType.ALL,fetch = FetchType.EAGER,orphanRemoval = true)
-    private List<Size> sizes = new ArrayList<>();
 
     @OneToMany(mappedBy = "type",cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
     private List<Attribute> attributes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "type",cascade = CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
+    private List<Size> sizes = new ArrayList<>();
 
     public static Type from(TypeDto typeDto){
         Type type = new Type();
@@ -32,8 +33,9 @@ public class Type {
     }
     public void addCategory(Category category){categories.add(category);}
     public void removeCategory(Category category){categories.remove(category);}
-    public void addSize(Size size){sizes.add(size);}
+
     public void addAttribute(Attribute attribute){attributes.add(attribute);}
+    public void addSize(Size size){sizes.add(size);}
     public void removeAttribute(Attribute attribute){attributes.remove(attribute);}
 
 

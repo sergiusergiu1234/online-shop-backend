@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/users/signup","/users/signin","/users/signout",
                         "/brands/all","/types/all",
-                        "/categories/all","/brands/**","/products/**","/genders/**","/types/**","/attributes/**","/productAttributes/**","/size/get/**","products/sizes/**")
+                        "/categories/all","/brands/**","/products/**","/genders/**","/types/**","/attributes/**","/productAttributes/**","/size/getSizes/**","products/sizes/**","/productSizes/**")
                 .permitAll()
                 .and()
                 .authorizeHttpRequests().requestMatchers("/users/**","/users/me/**","/favorites/**",
@@ -78,8 +78,6 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
                 .deleteCookies("JSESSIONID")
                 .invalidateHttpSession(true)
-                .and()
-                .exceptionHandling().authenticationEntryPoint(jwtAuthEntryPoint)
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

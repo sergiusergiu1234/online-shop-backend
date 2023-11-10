@@ -35,6 +35,9 @@ public class ProductService {
         ProductSpecification productSpecification;
         @Autowired
         ProductAttributeRepository productAttributeRepository;
+
+        @Autowired
+        ProductSizeRepository productSizeRepository;
     private final TypeRepository typeRepository;
 
 
@@ -52,18 +55,15 @@ public class ProductService {
                 throw new EntityNotFoundException("Gender " + createNewProductModel.getGender_name() + " not found");
             }
 
-            Category category = categoryRepository.findByName(createNewProductModel.getCategory_name());
-            if(category == null){
-                throw new EntityNotFoundException("Category " + createNewProductModel.getCategory_name() + " not found");
-            }
-
+            Category category = categoryRepository.findByName(createNewProductModel.getCategory_name())
+                    .orElseThrow(()->new EntityNotFoundException("Category with name "+ createNewProductModel.getCategory_name() + " not found"));
 
             //set every field of the product (from createNewProductModel)
             product.setGender(gender);
             product.setBrand(brand);
             product.setCategory(category);
             product.setName(createNewProductModel.getName());
-            product.setSize(createNewProductModel.getSize());
+
             product.setPrice(createNewProductModel.getPrice());
             product.setDescription(createNewProductModel.getDescription());
             product.setStock(createNewProductModel.getStock());
@@ -114,61 +114,82 @@ public class ProductService {
             productRepository.save(product);
         }
 
-        public  Page<ProductCardDto> getAllProducts(ProductRequestModel request, Pageable pageable){
-            //get the product entries based on the request (grouped by name)
+        public Page<ProductCardDto> filterProducts(ProductRequestModel request, Pageable pageable){
             Page<Product> productsPage = productRepository.findAll(productSpecification.getProducts(request), pageable);
-            Long totalDistinctNames = productRepository.countDistinctNames();
             List<Product> products = productsPage.getContent();
-            //generate a dto List
-            List<ProductCardDto> productCardDtos = new ArrayList<>();
-            //save the names of the result in a list
-            List<String> productNames = new ArrayList<>();
-            for (Product product : products) {
-                productNames.add(product.getName());
-            }
-            //for each saved name, ...
-            for (String productName : productNames) {
-                //generate a new dto
-                ProductCardDto productCardDto = new ProductCardDto();
-                // get product entries with that name
-                List<Product> filteredProducts = productRepository.findByName(productName);
-                List<ProductVariationDto> sizes = new ArrayList<>();
-                //for each entry
-                for (Product product : filteredProducts){
-
-                    if(productCardDto.getName() ==null){
-
-                        productCardDto.setName(product.getName());
-                        productCardDto.setDescription(product.getDescription());
-                        productCardDto.setPrice(product.getPrice());
-                        productCardDto.setCategory(product.getCategory().getName());
-                        productCardDto.setBrand(product.getCategory().getName());
-                        productCardDto.setGender(product.getGender().getName());
-                        String placeholder = "N/A";
-                        byte[] imageData = placeholder.getBytes();
-                        try{
-                            System.out.println("image downloaded");
-                           imageData  = fileStore.download(product.getImagePath(), product.getImageFileName());
-                        }catch(Exception e){
-                            System.out.println("Image field is null");
-                        }
-                        productCardDto.setImage(imageData);
-
-                        //placeholder for image downloading
-                        // byte[] placeholderByteArray = new byte[16992];
-                        //productDto.setImage(placeholderByteArray);
-                    }
-                    ProductVariationDto var = new ProductVariationDto();
-                    var.setId(product.getId());
-                    var.setSize(product.getSize());
-                    sizes.add(var);
+            List <ProductCardDto>productCardDtos = new ArrayList<>();
+            for(Product product : products){
+                ProductCardDto dto = ProductCardDto.from(product);
+                String placeholder = "N/A";
+                byte[] imageData = placeholder.getBytes();
+                try{
+                    imageData  = fileStore.download(product.getImagePath(), product.getImageFileName());
+                }catch(Exception e){
+                   System.out.println("Image field is null");
                 }
-                productCardDto.setSizes(sizes);
-                productCardDtos.add(productCardDto);
-            }
+                System.out.println("image downloaded");
+                dto.setImage(imageData);
 
-           return new PageImpl<>(productCardDtos, pageable, totalDistinctNames);
-        }
+                //placeholder for image downloading
+                // byte[] placeholderByteArray = new byte[16992];
+                //productDto.setImage(placeholderByteArray);
+                productCardDtos.add(dto);
+            }
+            return new PageImpl<>(productCardDtos, pageable,products.size());}
+
+//        public  Page<ProductCardDto> getAllProducts(ProductRequestModel request, Pageable pageable){
+//            //get the product entries based on the request (grouped by name)
+
+//            //generate a dto List
+//            List<ProductCardDto> productCardDtos = new ArrayList<>();
+//            //save the names of the result in a list
+//            List<String> productNames = new ArrayList<>();
+//            for (Product product : products) {
+//                productNames.add(product.getName());
+//            }
+//            //for each saved name, ...
+//            for (String productName : productNames) {
+//                //generate a new dto
+//                ProductCardDto productCardDto = new ProductCardDto();
+//                // get product entries with that name
+//                List<Product> filteredProducts = productRepository.findByName(productName);
+//                List<ProductVariationDto> sizes = new ArrayList<>();
+//                //for each entry
+//                for (Product product : filteredProducts){
+//
+//                    if(productCardDto.getName() ==null){
+//
+//                        productCardDto.setName(product.getName());
+//                        productCardDto.setDescription(product.getDescription());
+//                        productCardDto.setPrice(product.getPrice());
+//                        productCardDto.setCategory(product.getCategory().getName());
+//                        productCardDto.setBrand(product.getCategory().getName());
+//                        productCardDto.setGender(product.getGender().getName());
+//                        String placeholder = "N/A";
+//                        byte[] imageData = placeholder.getBytes();
+//                        try{
+//                            System.out.println("image downloaded");
+//                           imageData  = fileStore.download(product.getImagePath(), product.getImageFileName());
+//                        }catch(Exception e){
+//                            System.out.println("Image field is null");
+//                        }
+//                        productCardDto.setImage(imageData);
+//
+//                        //placeholder for image downloading
+//                        // byte[] placeholderByteArray = new byte[16992];
+//                        //productDto.setImage(placeholderByteArray);
+//                    }
+//                    ProductVariationDto var = new ProductVariationDto();
+//                    var.setId(product.getId());
+//
+//                    sizes.add(var);
+//                }
+//                productCardDto.setSizes(sizes);
+//                productCardDtos.add(productCardDto);
+//            }
+//
+//           return new PageImpl<>(productCardDtos, pageable, totalDistinctNames);
+//        }
     public Product getProduct(Long productId) {
         return productRepository.findById(productId).orElseThrow(()->
                 new EntityNotFoundException("Product with id " + productId + " does not exist"));
@@ -179,9 +200,7 @@ public class ProductService {
             return products;
     }
 
-    public List<String> getSizesByTypeId(Long typeId) {
-        return productRepository.findSizesByTypeId(typeId);
-    }
+
 
     @Transactional
     public Long decreaseStock(Long quantity, Long productId){

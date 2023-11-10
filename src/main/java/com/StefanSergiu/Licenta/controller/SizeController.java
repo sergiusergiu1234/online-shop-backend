@@ -2,6 +2,7 @@ package com.StefanSergiu.Licenta.controller;
 
 import com.StefanSergiu.Licenta.dto.attribute.AttributeDto;
 import com.StefanSergiu.Licenta.dto.attribute.CreateNewAttributeDto;
+import com.StefanSergiu.Licenta.dto.size.NewSizeModel;
 import com.StefanSergiu.Licenta.dto.size.SizeDto;
 import com.StefanSergiu.Licenta.entity.Attribute;
 import com.StefanSergiu.Licenta.entity.Size;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +31,8 @@ public class SizeController {
 
     //create new size
     @PostMapping("/admin/add")
-    public ResponseEntity<SizeDto> createAttribute(@RequestBody final SizeDto sizeDto){
-        Size size =   sizeService.addSize(sizeDto);
+    public ResponseEntity<SizeDto> createAttribute(@RequestBody final NewSizeModel newSizeModel){
+        Size size =   sizeService.addSize(newSizeModel);
         return new ResponseEntity<>(SizeDto.from(size), HttpStatus.OK);
     }
 
@@ -41,14 +43,16 @@ public class SizeController {
         return new ResponseEntity<>(SizeDto.from(size), HttpStatus.OK);
     }
 
-    @GetMapping("/get/{type_id}")
-    public ResponseEntity<List<SizeDto>> getSizes(@PathVariable final Long type_id){
-        List<Size> sizes = sizeRepository.findByType_Id(type_id);
-        List<SizeDto> sizeDtos = sizes.stream()
-                .map(SizeDto::from)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(sizeDtos);
+    @GetMapping("/getSizes")
+    public ResponseEntity<List<SizeDto>>getSizes(){
+        List<Size> sizes = sizeService.getSizes();
+        List<SizeDto> sizeDtoList =new ArrayList<>();
+        for(Size size:sizes){
+            SizeDto sizeDto = SizeDto.from(size);
+            sizeDtoList.add(sizeDto);
+        }
+        return new ResponseEntity<>(sizeDtoList,HttpStatus.OK);
     }
+
 
 }

@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpecificationExecutor<Product> {
-    @Query("SELECT COUNT(DISTINCT p.name) FROM Product p")
-    long countDistinctNames();
+
     List<Product> findByNameIgnoreCase(String name);
     long countByName(String name);
     List<Product> findAll(Specification<Product> spec);
@@ -26,7 +25,5 @@ public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpeci
     List<Product> findByBrandName(String brandName);
 
     List<Product> findByName(String productName);
-    @Query("SELECT DISTINCT p.size FROM Product p JOIN p.category c JOIN c.type t WHERE t.id = :typeId ")
-    List<String> findSizesByTypeId(@Param("typeId") Long typeId);
 
 }

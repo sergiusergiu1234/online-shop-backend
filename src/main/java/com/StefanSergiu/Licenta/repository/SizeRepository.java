@@ -9,7 +9,4 @@ import java.util.List;
 
 public interface SizeRepository extends JpaRepository<Size,Long> {
 
-//    @Query("SELECT s.value FROM Size s WHERE s.type_id = :typeId")
-//    List<Size> findByTypeId(@Param("typeId") Long typeId);
-List<Size> findByType_Id(Long typeId);
 }

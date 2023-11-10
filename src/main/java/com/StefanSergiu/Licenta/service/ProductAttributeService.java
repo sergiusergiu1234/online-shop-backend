@@ -35,7 +35,7 @@ public class ProductAttributeService {
 
     @Transactional
     public ProductAttribute getProductAttribute(Long productId,Long attributeId){
-        Product product = productRepository.findById(productId).orElseThrow(()->new EntityNotFoundException());
+        Product product = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
         Attribute attribute = attributeRepository.findById(attributeId).orElseThrow(()->new EntityNotFoundException());
         ProductAttributeKey productAttributeKey = new ProductAttributeKey();
         productAttributeKey.setAttributeId(attributeId);

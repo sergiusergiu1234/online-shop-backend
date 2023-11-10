@@ -1,5 +1,6 @@
 package com.StefanSergiu.Licenta.config;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.Column;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +17,11 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, org.springframework.security.core.AuthenticationException authException) throws IOException, ServletException {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getOutputStream().println("{ \"error\": \""+ authException.getMessage() + "\" }");
+
+        if (authException.getCause() instanceof ExpiredJwtException) {
+            response.getOutputStream().println("{ \"error\": \"JWT token has expired\" }");
+        } else {
+            response.getOutputStream().println("{ \"error\": \"" + authException.getMessage() + "\" }");
+        }
     }
 }

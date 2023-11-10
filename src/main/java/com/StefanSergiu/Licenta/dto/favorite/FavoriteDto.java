@@ -24,7 +24,7 @@ public class FavoriteDto {
         favoriteDto.setUserId(favorite.getUser().getId());
         favoriteDto.setProductName(favorite.getProduct().getName());
         favoriteDto.setPrice(favorite.getProduct().getPrice());
-        favoriteDto.setSize(favorite.getProduct().getSize());
+     //   favoriteDto.setSize(favorite.getProduct().getSize());
         return favoriteDto;
     }
     public static FavoriteDto from(Favorite favorite, byte[]productImage){
@@ -34,7 +34,7 @@ public class FavoriteDto {
         favoriteDto.setProductName(favorite.getProduct().getName());
         favoriteDto.setPrice(favorite.getProduct().getPrice());
         favoriteDto.setProductImage(productImage);
-        favoriteDto.setSize(favorite.getProduct().getSize());
+     //   favoriteDto.setSize(favorite.getProduct().getSize());
         return favoriteDto;
     }
 }

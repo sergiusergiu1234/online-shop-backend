@@ -3,6 +3,7 @@ package com.StefanSergiu.Licenta.service;
 import com.StefanSergiu.Licenta.dto.type.PlainTypeDto;
 import com.StefanSergiu.Licenta.dto.type.TypeDto;
 import com.StefanSergiu.Licenta.entity.*;
+import com.StefanSergiu.Licenta.exception.TypeAlreadyExistsException;
 import com.StefanSergiu.Licenta.repository.AttributeRepository;
 import com.StefanSergiu.Licenta.repository.CategoryRepository;
 import com.StefanSergiu.Licenta.repository.ProductRepository;
@@ -28,7 +29,15 @@ public class TypeService {
     @Autowired
     ProductRepository productRepository;
 
-    public Type addType(Type type){return typeRepository.save(type);}
+    public Type addType(TypeDto typeDto){
+        Type existingType = typeRepository.findByName(typeDto.getName());
+        if(existingType != null ){
+            throw new TypeAlreadyExistsException("Type " +typeDto.getName()+" already exists");
+        }
+        return typeRepository.save(Type.from(typeDto));
+    }
+
+
     public List<Type> getTypes(){
         return StreamSupport
                 .stream(typeRepository.findAll().spliterator(),false)
@@ -36,7 +45,7 @@ public class TypeService {
     }
 
     public Type getType(Long id){
-        return typeRepository.findById(id).orElseThrow(()->new EntityNotFoundException());
+        return typeRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Type with id "+ id + " not found!"));
     }
 
 
@@ -57,6 +66,8 @@ public class TypeService {
         return type;
     }
     public Type getTypeByCategory(String categoryName){
+        Category category = categoryRepository.findByName(categoryName)
+                .orElseThrow(()->new EntityNotFoundException("Category with name "+categoryName+ " not found!"));
         Type type = typeRepository.findByCategories_Name(categoryName);
         return type;
     }

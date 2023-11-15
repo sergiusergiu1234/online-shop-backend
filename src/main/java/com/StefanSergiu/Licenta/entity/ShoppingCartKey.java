@@ -16,6 +16,6 @@ public class ShoppingCartKey implements Serializable {
     @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "product_id")
-    private Long productId;
+    @Column(name = "productSizeId")
+    private Long productSizeId;
 }

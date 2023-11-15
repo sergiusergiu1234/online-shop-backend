@@ -12,15 +12,13 @@ public class Favorite {
     @EmbeddedId
     private FavoriteKey id;
 
-    @ManyToOne( fetch = FetchType.LAZY)
-    @MapsId("userId")
-    @JoinColumn(name = "userId",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false, insertable = false, updatable = false)
     private UserInfo user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("productId")
-    @JoinColumn(name = "productId",nullable = false)
-    private Product product;
+    @JoinColumn(name = "productSize_id", nullable = false, insertable = false, updatable = false)
+    private ProductSize productSize;
 
 
 }

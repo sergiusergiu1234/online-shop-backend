@@ -36,6 +36,11 @@ public class ProductSizeController {
     public ResponseEntity<ProductSizeDto> addNewProductSize(@RequestBody NewProductSizeModel newProductSizeModel){
        ProductSize productSize = productSizeService.createNewProductSize(newProductSizeModel);
        return new ResponseEntity<>(ProductSizeDto.from(productSize), HttpStatus.OK);
+    }
 
+    @DeleteMapping("/delete/{productSizeId}")
+    public ResponseEntity<ProductSizeDto> deleteProductSize(@PathVariable Long productSizeId){
+        ProductSize productSize = productSizeService.deleteProductSize(productSizeId);
+        return new ResponseEntity<>(ProductSizeDto.from(productSize),HttpStatus.OK);
     }
 }

@@ -27,31 +27,34 @@ public class Product{
 
     @Column
     private Float price;
+
     @ManyToOne
     @JoinColumn(name = "brand_id",nullable = false)
     private Brand brand;
+
     @ManyToOne
     @JoinColumn(name = "gender_id",nullable = false)
     private Gender gender;
+
     @ManyToOne
     @JoinColumn(name = "category_id",nullable = false)
     private Category category;
+
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProductAttribute> productAttributes=new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<ProductSize> productSizes= new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductSize> productSizes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Favorite> favorites = new ArrayList<>();
+
+
     private String imagePath;
+
     private String imageFileName;
+
     @Column(length = 5000)
     private String description;
 
-   @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<ShoppingCart>shoppingCarts = new ArrayList<>();
-
-   private Long stock;
+    private Long stock;
 
 }

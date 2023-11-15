@@ -19,11 +19,10 @@ public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpeci
     long countByName(String name);
     List<Product> findAll(Specification<Product> spec);
     Page<Product>findAll(Specification<Product>spec, Pageable pageable);
-    List<Product> findAllByName(String name);
+    Product findByName(String productName);
     Boolean  existsByName(String name);
     Optional<Product> findByBrand(Brand brand);
     List<Product> findByBrandName(String brandName);
 
-    List<Product> findByName(String productName);
 
 }

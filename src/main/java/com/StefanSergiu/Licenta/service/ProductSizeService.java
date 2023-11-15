@@ -25,16 +25,10 @@ public class ProductSizeService {
     @Autowired
     TypeRepository typeRepository;
     @Transactional
-    public ProductSize getProductSize(Long productId, Long SizeId){
-        Product product = productRepository.findById(productId).orElseThrow(()->new EntityNotFoundException());
-        Size size = sizeRepository.findById(SizeId).orElseThrow(()->new EntityNotFoundException());
+    public ProductSize getProductSize(Long productSizeId){
 
-        ProductSizeKey productSizeKey = new ProductSizeKey();
-        productSizeKey.setSizeId(SizeId);
-        productSizeKey.setProductId(productId);
-
-        return productSizeRepository.findById(productSizeKey)
-                .orElseThrow(()->new EntityNotFoundException("ProductSize with id "+ productSizeKey+ " not found!"));
+        return productSizeRepository.findById(productSizeId)
+                .orElseThrow(()->new EntityNotFoundException("ProductSize with id "+ productSizeId+ " not found!"));
     }
 
 
@@ -52,21 +46,19 @@ public class ProductSizeService {
                 .orElseThrow(()->new EntityNotFoundException("Product with id "+ newProductSizeModel.getProductId() +" not found"));
         Size size = sizeRepository.findById(newProductSizeModel.getSizeId())
                 .orElseThrow(()->new EntityNotFoundException(("Size with id " + newProductSizeModel.getSizeId()+ " not found")));
-        ProductSizeKey key = new ProductSizeKey();
-        key.setProductId(product.getId());
-        key.setSizeId(size.getId());
-
         ProductSize productSize = new ProductSize();
-        productSize.setId(key);
         productSize.setProduct(product);
         productSize.setSize(size);
-
-
         productSize.setStock(newProductSizeModel.getStock());
-
-
         productSizeRepository.save(productSize);
+        return productSize;
+    }
+    @Transactional
+    public ProductSize deleteProductSize(Long productSizeId){
+        ProductSize productSize = productSizeRepository.findById(productSizeId)
+                .orElseThrow(()-> new EntityNotFoundException("Product size with id "+productSizeId + " not found"));
 
+        productSizeRepository.delete(productSize);
         return productSize;
     }
 }

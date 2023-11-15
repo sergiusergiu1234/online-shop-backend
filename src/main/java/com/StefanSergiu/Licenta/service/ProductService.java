@@ -1,6 +1,7 @@
 package com.StefanSergiu.Licenta.service;
 
 import com.StefanSergiu.Licenta.dto.product.*;
+import com.StefanSergiu.Licenta.dto.productSize.ProductSizeDto;
 import com.StefanSergiu.Licenta.entity.*;
 import com.StefanSergiu.Licenta.filter.ProductSpecification;
 import com.StefanSergiu.Licenta.repository.*;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,6 +41,12 @@ public class ProductService {
 
         @Autowired
         ProductSizeRepository productSizeRepository;
+
+        @Autowired
+        FavoriteService favoriteService;
+
+        @Autowired
+        UserService userService;
     private final TypeRepository typeRepository;
 
 
@@ -137,77 +146,52 @@ public class ProductService {
             }
             return new PageImpl<>(productCardDtos, pageable,products.size());}
 
-//        public  Page<ProductCardDto> getAllProducts(ProductRequestModel request, Pageable pageable){
-//            //get the product entries based on the request (grouped by name)
 
-//            //generate a dto List
-//            List<ProductCardDto> productCardDtos = new ArrayList<>();
-//            //save the names of the result in a list
-//            List<String> productNames = new ArrayList<>();
-//            for (Product product : products) {
-//                productNames.add(product.getName());
-//            }
-//            //for each saved name, ...
-//            for (String productName : productNames) {
-//                //generate a new dto
-//                ProductCardDto productCardDto = new ProductCardDto();
-//                // get product entries with that name
-//                List<Product> filteredProducts = productRepository.findByName(productName);
-//                List<ProductVariationDto> sizes = new ArrayList<>();
-//                //for each entry
-//                for (Product product : filteredProducts){
-//
-//                    if(productCardDto.getName() ==null){
-//
-//                        productCardDto.setName(product.getName());
-//                        productCardDto.setDescription(product.getDescription());
-//                        productCardDto.setPrice(product.getPrice());
-//                        productCardDto.setCategory(product.getCategory().getName());
-//                        productCardDto.setBrand(product.getCategory().getName());
-//                        productCardDto.setGender(product.getGender().getName());
-//                        String placeholder = "N/A";
-//                        byte[] imageData = placeholder.getBytes();
-//                        try{
-//                            System.out.println("image downloaded");
-//                           imageData  = fileStore.download(product.getImagePath(), product.getImageFileName());
-//                        }catch(Exception e){
-//                            System.out.println("Image field is null");
-//                        }
-//                        productCardDto.setImage(imageData);
-//
-//                        //placeholder for image downloading
-//                        // byte[] placeholderByteArray = new byte[16992];
-//                        //productDto.setImage(placeholderByteArray);
-//                    }
-//                    ProductVariationDto var = new ProductVariationDto();
-//                    var.setId(product.getId());
-//
-//                    sizes.add(var);
-//                }
-//                productCardDto.setSizes(sizes);
-//                productCardDtos.add(productCardDto);
-//            }
-//
-//           return new PageImpl<>(productCardDtos, pageable, totalDistinctNames);
-//        }
     public Product getProduct(Long productId) {
         return productRepository.findById(productId).orElseThrow(()->
                 new EntityNotFoundException("Product with id " + productId + " does not exist"));
     }
-    public List<Product> getProductByName(String productName) {
+    public ProductDto getProductByName(String productName) {
+        Product product = productRepository.findByName(productName);
+        ProductDto productDto = ProductDto.from(product);
+        try{
+            productDto.setImage(fileStore.download(product.getImagePath(), product.getImageFileName()));
+        }catch(IllegalArgumentException exception){
+            String placeholder = "N/A";
+            byte[] imageData = placeholder.getBytes();
+            productDto.setImage(imageData);
+            System.out.println("couldn't do the do");
+        }
 
-        List<Product> products = productRepository.findAllByName(productName);
-            return products;
+        try{
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserInfo user = userService.getLoggedInUser(username);
+            Integer userId = user.getId();
+
+
+            List<Favorite> favorites = new ArrayList<>();
+            favorites = favoriteService.getFavoriteByUser(userId);
+
+            for(ProductSizeDto productSizeDto : productDto.getSizes()){
+                boolean isFavorite = favorites.stream()
+                        .anyMatch(favorite -> favorite.getProductSize().getProductSizeId().equals(productSizeDto.getProductId()));
+
+                productSizeDto.setFavorite(isFavorite);
+            }
+        }catch (NullPointerException exception){
+            System.out.println("User is not logged");
+        }
+
+        return productDto;
     }
 
-
-
     @Transactional
-    public Long decreaseStock(Long quantity, Long productId){
-        Product product = productRepository.findById(productId)
-                .orElseThrow(()-> new EntityNotFoundException("Product with id " + productId + " does not exist"));
-        if(product.getStock()>= quantity)
-        product.setStock(product.getStock()-quantity);
+    public Long decreaseStock(Long quantity, Long productSizeId){
+        ProductSize productSize = productSizeRepository.findById(productSizeId)
+                .orElseThrow(()-> new EntityNotFoundException("Product size with id " + productSizeId + " does not exist"));
+        if(productSize.getStock()>= quantity)
+        productSize.setStock(productSize.getStock()-quantity);
 
         return quantity;
 

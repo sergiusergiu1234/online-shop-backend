@@ -18,9 +18,9 @@ public class ShoppingCart {
     private UserInfo user;
 
     @ManyToOne
-    @MapsId("productId")
-    @JoinColumn(name = "productId", nullable = false)
-    private Product product;
+    @MapsId("productSizeId")
+    @JoinColumn(name = "productSizeId", nullable = false)
+    private ProductSize productSize;
 
      Long quantity;
 

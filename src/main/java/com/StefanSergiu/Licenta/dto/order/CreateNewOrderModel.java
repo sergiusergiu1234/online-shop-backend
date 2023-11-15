@@ -10,5 +10,4 @@ public class CreateNewOrderModel {
     private String billingName;
     private String contactPhone;
 
-    //TODO: payment info + shipping address entities
 }

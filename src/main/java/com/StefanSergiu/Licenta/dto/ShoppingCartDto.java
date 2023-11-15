@@ -7,35 +7,38 @@ import lombok.Data;
 @Data
 public class ShoppingCartDto {
     private Integer userId;
-    private Long productId;
+    private Long productSizeId;
 
     private String productName;
     private Long quantity;
     private byte[] productImage;
     private Float price;
-    private ProductDto product;
     private Long stock;
-
+    private String size;
+    private ProductDto product;
     public static ShoppingCartDto from(ShoppingCart shoppingCart){
         ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
-        shoppingCartDto.setProductId(shoppingCart.getId().getProductId());
+        shoppingCartDto.setProductSizeId(shoppingCart.getProductSize().getProductSizeId());
         shoppingCartDto.setUserId(shoppingCart.getId().getUserId());
         shoppingCartDto.setQuantity(shoppingCart.getQuantity());
         shoppingCartDto.setPrice(shoppingCart.getPrice());
-        shoppingCartDto.setProductName(shoppingCart.getProduct().getName());
-        shoppingCartDto.setProduct(ProductDto.from(shoppingCart.getProduct()));
-        shoppingCartDto.setStock(shoppingCart.getProduct().getStock());
+        shoppingCartDto.setProductName(shoppingCart.getProductSize().getProduct().getName());
+        shoppingCartDto.setStock(shoppingCart.getProductSize().getStock());
+        shoppingCartDto.setProduct(ProductDto.from(shoppingCart.getProductSize().getProduct()));
+        shoppingCartDto.setSize(shoppingCart.getProductSize().getSize().getValue());
         return shoppingCartDto;
     }
     public static ShoppingCartDto from(ShoppingCart shoppingCart, byte[] productImage){
         ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
-        shoppingCartDto.setProductId(shoppingCart.getId().getProductId());
+        shoppingCartDto.setProductSizeId(shoppingCart.getProductSize().getProductSizeId());
         shoppingCartDto.setUserId(shoppingCart.getId().getUserId());
         shoppingCartDto.setQuantity(shoppingCart.getQuantity());
         shoppingCartDto.setPrice(shoppingCart.getPrice());
+        shoppingCartDto.setProductName(shoppingCart.getProductSize().getProduct().getName());
+        shoppingCartDto.setStock(shoppingCart.getProductSize().getStock());
         shoppingCartDto.setProductImage(productImage);
-        shoppingCartDto.setProductName(shoppingCart.getProduct().getName());
-        shoppingCartDto.setProduct(ProductDto.from(shoppingCart.getProduct()));
+        shoppingCartDto.setProduct(ProductDto.from(shoppingCart.getProductSize().getProduct()));
+        shoppingCartDto.setSize(shoppingCart.getProductSize().getSize().getValue());
         return shoppingCartDto;
     }
 }

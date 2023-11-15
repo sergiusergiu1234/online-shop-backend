@@ -13,9 +13,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FavoriteKey implements Serializable {
-    @Column(name = "user_id",nullable = false)
+    @Column(name = "userId",nullable = false)
     private Integer userId;
 
-    @Column(name = "product_id",nullable = false)
-    private Long productId;
+    @Column(name = "productSize_id",nullable = false)
+    private Long productSizeId;
 }

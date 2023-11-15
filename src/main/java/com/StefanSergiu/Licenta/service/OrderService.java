@@ -55,27 +55,23 @@ public class OrderService {
 
         newOrder.setTotal((float) 0);
         Float total = newOrder.getTotal();
-        //TODO: get  all order details and add their costs and save it to price field
+
         //get empty orderDetails list
         List<OrderDetail> orderDetails = (List<OrderDetail>) orderDetailRepository.findByOrderId(newOrder.getId());
         //get user's shopping carts
         List<ShoppingCart> shoppingCarts = (List<ShoppingCart>) shoppingCartRepository.findByUserId(userId);
 
         for(ShoppingCart shoppingCart : shoppingCarts){
-
-
-
             //generate empty orderDetail and populate it based on shopping cart info
             OrderDetail newOrderDetail = new OrderDetail();
             OrderItem newOrderItem = new OrderItem();
-            newOrderItem.setProductName(shoppingCart.getProduct().getName());
+            newOrderItem.setProductName(shoppingCart.getProductSize().getProduct().getName());
             newOrderDetail.setOrderItem(newOrderItem);
             newOrderDetail.setQuantity(shoppingCart.getQuantity());
             newOrderDetail.setPrice(shoppingCart.getPrice());
-          //  newOrderDetail.setSize(shoppingCart.getProduct().getSize());
             newOrder.setTotal(newOrder.getTotal()+ newOrderDetail.getPrice());
 
-            productService.decreaseStock(shoppingCart.getQuantity(),shoppingCart.getProduct().getId());
+            productService.decreaseStock(shoppingCart.getQuantity(),shoppingCart.getProductSize().getProductSizeId());
             //set Order
             newOrderDetail.setOrder(newOrder);
             orderDetailRepository.save(newOrderDetail);

@@ -3,6 +3,7 @@ package com.StefanSergiu.Licenta.controller;
 import com.StefanSergiu.Licenta.dto.ShoppingCartDto;
 import com.StefanSergiu.Licenta.entity.*;
 import com.StefanSergiu.Licenta.repository.ProductRepository;
+import com.StefanSergiu.Licenta.repository.ProductSizeRepository;
 import com.StefanSergiu.Licenta.service.FileStore;
 import com.StefanSergiu.Licenta.service.ShoppingCartService;
 import com.StefanSergiu.Licenta.service.UserService;
@@ -34,7 +35,7 @@ public class ShoppingCartController {
     FileStore fileStore;
 
     @Autowired
-    ProductRepository productRepository;
+    ProductSizeRepository productSizeRepository;
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping()
@@ -71,8 +72,8 @@ public class ShoppingCartController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    @DeleteMapping("/delete/{productId}")
-    public ResponseEntity<ShoppingCartDto> deleteShoppingCart(@PathVariable final Long productId){
+    @DeleteMapping("/delete/{productSizeId}")
+    public ResponseEntity<ShoppingCartDto> deleteShoppingCart(@PathVariable final Long productSizeId){
 
         //get logged in user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -82,12 +83,12 @@ public class ShoppingCartController {
         ////
 
         //verify if product exists by id
-        Product product = productRepository.findById(productId)
-                .orElseThrow(()-> new EntityNotFoundException("Product with id " + productId + " not found"));
+        ProductSize productSize = productSizeRepository.findById(productSizeId)
+                .orElseThrow(()-> new EntityNotFoundException("Product with id " + productSizeId + " not found"));
 
         //create key
         ShoppingCartKey key = new ShoppingCartKey();
-        key.setProductId(productId);
+        key.setProductSizeId(productSizeId);
         key.setUserId(userId);
 
         //delete by key

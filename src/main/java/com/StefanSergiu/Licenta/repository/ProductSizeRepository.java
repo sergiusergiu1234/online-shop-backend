@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductSizeRepository extends JpaRepository<ProductSize, Long> {
-   Optional<ProductSize> findById(ProductSizeKey id);
+   Optional<ProductSize> findById(Long id);
 
 
 

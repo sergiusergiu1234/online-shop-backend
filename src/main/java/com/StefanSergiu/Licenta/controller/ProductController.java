@@ -105,44 +105,16 @@ public class ProductController {
         CacheControl cacheControl = CacheControl.maxAge(1, TimeUnit.MINUTES);
         return ResponseEntity.ok().cacheControl(cacheControl).body(productsPage);
     }
-//    @PreAuthorize("permitAll()")
-//    @GetMapping("/{productName}")
-//    public ResponseEntity<List<ProductDto>> getProduct(@PathVariable final String productName){
-//
-//        //get logged in user
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String username= authentication.getName();
-//        UserInfo user = userService.getLoggedInUser(username);
-//        System.out.println(user);
-//        ////
-//        Integer userId = null;
-//        if (user != null) {
-//            userId = user.getId();
-//        }
-//        //favorite list by logged user. If user is null, then all productDto's are false on favorite
-//        List<Favorite> favorites;
-//        if(userId != null){
-//            favorites = favoriteService.getFavoriteByUser(userId);
-//        } else {
-//            favorites = null;
-//        }
-//
-//        List<Product> products = productService.getProductByName(productName);
-//        List<ProductDto> productDtoList = new ArrayList<>();
-//        for (Product product : products) {
-//            ProductDto productDto = ProductDto.from(product);
-//            if(favorites != null){
-//                for(Favorite fav : favorites){
-//                    if(fav.getProduct().getId() == product.getId()){
-//                        productDto.setIsFavorite(true);
-//                        break;
-//                    }
-//                }
-//            }
-//            productDtoList.add(productDto);
-//        }
-//        return new ResponseEntity<>(productDtoList,HttpStatus.OK);
-//    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping(value ="/Page/{productName}")
+    public ResponseEntity<ProductDto> getProductDetails(@PathVariable final String productName){
+
+        ProductDto productDto = productService.getProductByName(productName);
+
+        return new ResponseEntity<>(productDto,HttpStatus.OK);
+    }
+
     @DeleteMapping(value ="/admin/{id}")
     public ResponseEntity<ProductDto> deleteProduct(@PathVariable final Long id){
         Product product = productService.getProduct(id);
@@ -170,15 +142,7 @@ public class ProductController {
         if (product == null) {
             return new ResponseEntity<>("Product not found!", HttpStatus.NOT_FOUND);
         }
-        // check if name already exists in database
-        //if present, don't upload the image and only set the path to the existing one
-        if(productRepository.countByName(product.getName())!=1){
-            List<Product> products = productRepository.findAllByName(product.getName());
-            //set the existing image to the product
-            productService.updateProductImage(id, products.get(0).getImagePath(),products.get(0).getImageFileName());
 
-            return ResponseEntity.status(HttpStatus.OK).body("Image added succesfully");
-        }
 
         //Check if the file is an image
         if (!Arrays.asList(IMAGE_PNG.getMimeType(),
@@ -238,13 +202,6 @@ public class ProductController {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to upload file", e);
         }
-
-        List<Product> products = productRepository.findAllByName(product.getName());
-        for (Product p : products){
-            //set the image to the product
-            productService.updateProductImage(p.getId(), path,fileName);
-        }
-
 
         return ResponseEntity.status(HttpStatus.OK).body("Image edited succesfully");
     }

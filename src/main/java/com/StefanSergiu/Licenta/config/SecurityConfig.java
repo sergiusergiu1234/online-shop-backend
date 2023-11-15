@@ -62,14 +62,19 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/users/signup","/users/signin","/users/signout",
                         "/brands/all","/types/all",
-                        "/categories/all","/brands/**","/products/**","/genders/**","/types/**","/attributes/**","/productAttributes/**","/size/getSizes/**","products/sizes/**","/productSizes/**")
+                        "/categories/all","/brands/**","/products/**","/genders/**",
+                        "/types/**","/attributes/**","/productAttributes/**",
+                        "/size/getSizes/**","products/sizes/**","/productSizes/**",
+                        "/products/Page/**")
                 .permitAll()
                 .and()
                 .authorizeHttpRequests().requestMatchers("/users/**","/users/me/**","/favorites/**",
                         "/brands/admin/add/**","/brands/admin/delete/**",
                         "/types/admin/**","/type/admin/delete/**",
-                        "/categories/admin/**","/products/admin/**","/genders/admin/**","/types/admin/**","/attributes/admin/**","/productAttributes/admin/**","/favorites/**",
-                        "/favorites/delete/**","/shoppingCart/**","/order/**","/order/create/**","/order/update/**","/size/admin/add/**",
+                        "/categories/admin/**","/products/admin/**","/genders/admin/**","/types/admin/**",
+                        "/attributes/admin/**","/productAttributes/admin/**","/favorites/**",
+                        "/favorites/delete/**","/shoppingCart/**","/order/**","/order/create/**",
+                        "/order/update/**","/size/admin/add/**",
                         "/me/edit/password","/size/admin/delete/**")
                 .authenticated()
                 .and()

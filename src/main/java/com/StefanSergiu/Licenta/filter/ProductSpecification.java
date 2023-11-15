@@ -57,7 +57,7 @@ public class ProductSpecification {
             Join<Product, ProductSize> productSizeJoin = root.join("productSizes");
             Join<ProductSize, Size> sizeJoin = productSizeJoin.join("size");
 
-            predicates.add(sizeJoin.get("sizeValue").in(sizeList));
+            predicates.add(sizeJoin.get("value").in(sizeList));
         }
 
         // filter by brand names

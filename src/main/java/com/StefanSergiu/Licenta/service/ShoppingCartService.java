@@ -2,6 +2,7 @@ package com.StefanSergiu.Licenta.service;
 
 import com.StefanSergiu.Licenta.entity.*;
 import com.StefanSergiu.Licenta.repository.ProductRepository;
+import com.StefanSergiu.Licenta.repository.ProductSizeRepository;
 import com.StefanSergiu.Licenta.repository.ShoppingCartRepository;
 import com.StefanSergiu.Licenta.repository.UserInfoRepository;
 import jakarta.persistence.EntityExistsException;
@@ -21,22 +22,22 @@ public class ShoppingCartService {
     private ShoppingCartRepository shoppingCartRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductSizeRepository productSizeRepository;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
 
     @Transactional
-    public ShoppingCart createShoppingCart(Integer userId, Long productId){
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product with id " + productId + " not found!"));
+    public ShoppingCart createShoppingCart(Integer userId, Long productSizeId){
+        ProductSize productSize = productSizeRepository.findById(productSizeId)
+                .orElseThrow(() -> new EntityNotFoundException("Product with id " + productSizeId + " not found!"));
         UserInfo user = userInfoRepository.findById(userId)
                 .orElseThrow(()->new EntityNotFoundException("User with id+ "+ userId + " doesn't exist!"));
 
 
         //generate composite ShoppingCart key
         ShoppingCartKey key = new ShoppingCartKey();
-        key.setProductId(productId);
+        key.setProductSizeId(productSizeId);
         key.setUserId(userId);
 
         //check if combination already exists
@@ -44,7 +45,7 @@ public class ShoppingCartService {
             ShoppingCart shoppingCart = shoppingCartRepository.findById(key).orElseThrow();
             Long quantity = shoppingCartRepository.findById(key).get().getQuantity();
             shoppingCartRepository.findById(key).get().setQuantity(quantity+1);
-            shoppingCart.setPrice((quantity+1)*product.getPrice());
+            shoppingCart.setPrice((quantity+1)*productSize.getProduct().getPrice());
             return shoppingCartRepository.save(shoppingCart);
         }
         else{
@@ -52,17 +53,17 @@ public class ShoppingCartService {
             ShoppingCart shoppingCart = new ShoppingCart();
             shoppingCart.setId(key);
             shoppingCart.setUser(user);
-            shoppingCart.setProduct(product);
+            shoppingCart.setProductSize(productSize);
             shoppingCart.setQuantity(1L);
-            shoppingCart.setPrice(shoppingCart.getProduct().getPrice()* shoppingCart.getQuantity());
+            shoppingCart.setPrice(shoppingCart.getProductSize().getProduct().getPrice()* shoppingCart.getQuantity());
             return shoppingCartRepository.save(shoppingCart);
         }
     }
 
     @Transactional
     public ShoppingCart deleteShoppingCart(ShoppingCartKey id){
-        Product product = productRepository.findById(id.getProductId())
-                .orElseThrow(() -> new EntityNotFoundException("Product with id " + id.getProductId() + " not found!"));
+        ProductSize productSize = productSizeRepository.findById(id.getProductSizeId())
+                .orElseThrow(() -> new EntityNotFoundException("Product with id " + id.getProductSizeId() + " not found!"));
         ShoppingCart shoppingCart = shoppingCartRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("favorite with id" + id + " not found"));
         if(shoppingCart.getQuantity()==1){
@@ -71,7 +72,7 @@ public class ShoppingCartService {
         }else{
             Long quantity = shoppingCart.getQuantity();
             shoppingCartRepository.findById(id).get().setQuantity(quantity-1);
-            shoppingCart.setPrice((quantity-1)*product.getPrice());
+            shoppingCart.setPrice((quantity-1)*productSize.getProduct().getPrice());
             System.out.println(shoppingCart.getPrice());
             return shoppingCartRepository.save(shoppingCart);
         }

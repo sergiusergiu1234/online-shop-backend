@@ -1,11 +1,9 @@
 package com.StefanSergiu.Licenta.controller;
 
 import com.StefanSergiu.Licenta.dto.favorite.FavoriteDto;
-import com.StefanSergiu.Licenta.entity.Favorite;
-import com.StefanSergiu.Licenta.entity.FavoriteKey;
-import com.StefanSergiu.Licenta.entity.Product;
-import com.StefanSergiu.Licenta.entity.UserInfo;
+import com.StefanSergiu.Licenta.entity.*;
 import com.StefanSergiu.Licenta.repository.ProductRepository;
+import com.StefanSergiu.Licenta.repository.ProductSizeRepository;
 import com.StefanSergiu.Licenta.service.FavoriteService;
 import com.StefanSergiu.Licenta.service.FileStore;
 import com.StefanSergiu.Licenta.service.UserService;
@@ -33,6 +31,8 @@ public class FavoriteController {
     UserService userService;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    ProductSizeRepository productSizeRepository;
 
     @Autowired
     FileStore fileStore;
@@ -45,15 +45,15 @@ public class FavoriteController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    @PostMapping("/add/{productId}")
-    public ResponseEntity<FavoriteDto> newFavorite(@PathVariable final Long productId){
+    @PostMapping("/add/{productSizeId}")
+    public ResponseEntity<FavoriteDto> newFavorite(@PathVariable final Long productSizeId){
         //get logged in user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username= authentication.getName();
         UserInfo user = userService.getLoggedInUser(username);
         Integer userId = user.getId();
         ////
-        Favorite favorite = favoriteService.createFavorite(userId, productId);
+        Favorite favorite = favoriteService.createFavorite(userId, productSizeId);
         return new ResponseEntity<>(FavoriteDto.from(favorite),HttpStatus.OK);
     }
 
@@ -65,20 +65,25 @@ public class FavoriteController {
         String username = authentication.getName();
         UserInfo user = userService.getLoggedInUser(username);
         Integer userId = user.getId();
-        System.out.println(authentication);
         ////
         List<Favorite> favorites = favoriteService.getFavoriteByUser(userId);
         List<FavoriteDto> favoriteDtoList = new ArrayList<>();
+        byte[] imageData;
         for (Favorite favorite: favorites){
-            byte[] imageData = fileStore.download(favorite.getProduct().getImagePath(),favorite.getProduct().getImageFileName());
+            try{
+                 imageData = fileStore.download(favorite.getProductSize().getProduct().getImagePath(),favorite.getProductSize().getProduct().getImageFileName());
+            }catch (IllegalArgumentException exception){
+                String placeholder = "N/A";
+                imageData = placeholder.getBytes();
+            }
             FavoriteDto favoriteDto = FavoriteDto.from(favorite,imageData);
             favoriteDtoList.add(favoriteDto);
         }
         return new ResponseEntity<>(favoriteDtoList,HttpStatus.OK);
     }
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<FavoriteDto> deleteFavorite(@PathVariable final Long id){
+    @DeleteMapping("/delete/{productSizeId}")
+    public ResponseEntity<FavoriteDto> deleteFavorite(@PathVariable final Long productSizeId){
 
         //get logged in user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -88,12 +93,12 @@ public class FavoriteController {
 
         ////
         //verify if product exists by id
-        Product product = productRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Product with id " + id + " not found"));
+        ProductSize productSize = productSizeRepository.findById(productSizeId)
+                .orElseThrow(()-> new EntityNotFoundException("Product with id " + productSizeId + " not found"));
 
         //create key
         FavoriteKey key = new FavoriteKey();
-        key.setProductId(id);
+        key.setProductSizeId(productSizeId);
         key.setUserId(userId);
 
         //delete by key

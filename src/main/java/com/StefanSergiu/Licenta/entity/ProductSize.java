@@ -4,21 +4,33 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "product_size")
+@Table(name = "product_size",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "size_id"})})
 @Data
 @NoArgsConstructor
 public class ProductSize {
-    @EmbeddedId
-    private ProductSizeKey id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "productSizeId", nullable = false)
+    private Long productSizeId;
+
     @ManyToOne
-    @MapsId("productId")
+    @JoinColumn(name = "product_id", nullable = false)
     private  Product product;
 
     @ManyToOne
-    @MapsId("attributeId")
+    @JoinColumn(name = "size_id", nullable = false)
     private Size size;
 
-    private Long stock;
+    @OneToMany(mappedBy = "productSize", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorite> favorites = new ArrayList<>();
 
+    @OneToMany(mappedBy = "productSize", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShoppingCart> shoppingCarts;
+
+    private Long stock;
 }

@@ -3,6 +3,7 @@ package com.StefanSergiu.Licenta.service;
 import com.StefanSergiu.Licenta.entity.*;
 import com.StefanSergiu.Licenta.repository.FavoriteRepository;
 import com.StefanSergiu.Licenta.repository.ProductRepository;
+import com.StefanSergiu.Licenta.repository.ProductSizeRepository;
 import com.StefanSergiu.Licenta.repository.UserInfoRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,7 +21,7 @@ public class FavoriteService {
     private FavoriteRepository favoriteRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductSizeRepository productSizeRepository;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
@@ -32,27 +33,21 @@ public class FavoriteService {
     }
 
     @Transactional
-    public Favorite createFavorite(Integer userId,Long productId){
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product with id " + productId + " not found!"));
+    public Favorite createFavorite(Integer userId, Long productSizeId){
+        ProductSize productSize = productSizeRepository.findById(productSizeId)
+                .orElseThrow(() -> new EntityNotFoundException("Product size not found"));
         UserInfo user = userInfoRepository.findById(userId)
                 .orElseThrow(()->new EntityNotFoundException("User with id+ "+ userId + " doesn't exist!"));
 
-        //generate composite Favorite key
-        FavoriteKey key = new FavoriteKey();
-        key.setProductId(productId);
-        key.setUserId(userId);
-
-        //check if combination already exists
-        if(favoriteRepository.findById(key).isPresent())
-            throw new EntityExistsException("Entity with composite key "+ key + " already exists!");
-
-
         //create new Favorite
         Favorite favorite = new Favorite();
+        FavoriteKey key = new FavoriteKey();
+        key.setUserId(userId);
+        key.setProductSizeId(productSizeId);
+
         favorite.setId(key);
         favorite.setUser(user);
-        favorite.setProduct(product);
+        favorite.setProductSize(productSize);
 
         return favoriteRepository.save(favorite);
     }

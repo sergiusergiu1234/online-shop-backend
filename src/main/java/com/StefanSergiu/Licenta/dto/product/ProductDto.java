@@ -6,9 +6,12 @@ import com.StefanSergiu.Licenta.dto.category.PlainCategoryDto;
 import com.StefanSergiu.Licenta.dto.gender.PlainGenderDto;
 import com.StefanSergiu.Licenta.dto.productAttribute.PlainProductAttributeDto;
 import com.StefanSergiu.Licenta.dto.productAttribute.ProductAttributeDto;
+import com.StefanSergiu.Licenta.dto.productSize.ProductSizeDto;
+import com.StefanSergiu.Licenta.dto.size.SizeDto;
 import com.StefanSergiu.Licenta.entity.Attribute;
 import com.StefanSergiu.Licenta.entity.Product;
 import com.StefanSergiu.Licenta.entity.ProductAttribute;
+import com.StefanSergiu.Licenta.entity.ProductSize;
 import com.StefanSergiu.Licenta.service.FileStore;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -30,10 +33,8 @@ public class ProductDto {
     private PlainGenderDto gender;
     private PlainCategoryDto category;
     private String description;
-    private Boolean isFavorite;
     private byte[] image;
-
-    private Long stock;
+    private List<ProductSizeDto> sizes = new ArrayList<>();
     //**
     private List<PlainProductAttributeDto> attributes = new ArrayList<>();
     public static ProductDto from(Product product) {
@@ -43,7 +44,7 @@ public class ProductDto {
         productDto.setPrice(product.getPrice());
         productDto.setDescription(product.getDescription());
 
-        productDto.setStock(product.getStock());
+
         if(Objects.nonNull(product.getBrand())){
             productDto.setBrand(PlainBrandDto.from(product.getBrand()));
         }
@@ -56,6 +57,7 @@ public class ProductDto {
         //**
         productDto.setAttributes(product.getProductAttributes().stream().map(PlainProductAttributeDto::from).collect(Collectors.toList()));
 
+        productDto.setSizes(product.getProductSizes().stream().map(ProductSizeDto::from).collect(Collectors.toList()));
 
         return productDto;
     }
@@ -78,6 +80,7 @@ public class ProductDto {
         }
         //**
         productDto.setAttributes(product.getProductAttributes().stream().map(PlainProductAttributeDto::from).collect(Collectors.toList()));
+        productDto.setSizes(product.getProductSizes().stream().map(ProductSizeDto::from).collect(Collectors.toList()));
 
         productDto.image=image;
         return productDto;

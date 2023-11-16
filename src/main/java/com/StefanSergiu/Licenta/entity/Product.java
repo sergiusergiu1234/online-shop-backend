@@ -55,6 +55,4 @@ public class Product{
     @Column(length = 5000)
     private String description;
 
-    private Long stock;
-
 }

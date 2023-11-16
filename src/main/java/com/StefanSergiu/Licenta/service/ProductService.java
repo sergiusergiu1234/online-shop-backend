@@ -75,7 +75,6 @@ public class ProductService {
 
             product.setPrice(createNewProductModel.getPrice());
             product.setDescription(createNewProductModel.getDescription());
-            product.setStock(createNewProductModel.getStock());
             //add the product to the other side of every relationship
             brand.addProduct(product);
             gender.addProduct(product);

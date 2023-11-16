@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -122,27 +124,33 @@ public class ProductService {
             productRepository.save(product);
         }
 
+    @Async
+    public CompletableFuture<List<ProductCardDto>> downloadImagesAsync(List<Product> products) {
+        return CompletableFuture.supplyAsync(() ->
+                products.parallelStream().map(product -> {
+                    ProductCardDto dto = ProductCardDto.from(product);
+                    String placeholder = "N/A";
+                    byte[] imageData = placeholder.getBytes();
+                    try {
+                        imageData = fileStore.download(product.getImagePath(), product.getImageFileName());
+                        System.out.println("Image downloaded for product: " + product.getId());
+                    } catch (Exception e) {
+                        System.err.println("Error downloading image for product: " + product.getId());
+                        e.printStackTrace();
+                    }
+                    dto.setImage(imageData);
+                    return dto;
+                }).collect(Collectors.toList())
+        );
+    }
+        @Transactional
         public Page<ProductCardDto> filterProducts(ProductRequestModel request, Pageable pageable){
             Page<Product> productsPage = productRepository.findAll(productSpecification.getProducts(request), pageable);
             List<Product> products = productsPage.getContent();
-            List <ProductCardDto>productCardDtos = new ArrayList<>();
-            for(Product product : products){
-                ProductCardDto dto = ProductCardDto.from(product);
-                String placeholder = "N/A";
-                byte[] imageData = placeholder.getBytes();
-                try{
-                    imageData  = fileStore.download(product.getImagePath(), product.getImageFileName());
-                }catch(Exception e){
-                   System.out.println("Image field is null");
-                }
-                System.out.println("image downloaded");
-                dto.setImage(imageData);
 
-                //placeholder for image downloading
-                // byte[] placeholderByteArray = new byte[16992];
-                //productDto.setImage(placeholderByteArray);
-                productCardDtos.add(dto);
-            }
+            CompletableFuture<List<ProductCardDto>> productCardDtosFuture = downloadImagesAsync(products);
+            List<ProductCardDto> productCardDtos =productCardDtosFuture.join();
+
             return new PageImpl<>(productCardDtos, pageable,products.size());}
 
 

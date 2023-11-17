@@ -14,11 +14,11 @@ public class ProductAttribute {
     @EmbeddedId
     private ProductAttributeKey id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("productId")
     private  Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("attributeId")
     private Attribute attribute;
 

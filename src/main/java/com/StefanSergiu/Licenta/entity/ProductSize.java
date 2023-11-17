@@ -18,11 +18,11 @@ public class ProductSize {
     @Column(name = "productSizeId", nullable = false)
     private Long productSizeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private  Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "size_id", nullable = false)
     private Size size;
 

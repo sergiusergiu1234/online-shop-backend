@@ -17,7 +17,7 @@ public class ShoppingCart {
     @JoinColumn(name = "userId", nullable = false)
     private UserInfo user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("productSizeId")
     @JoinColumn(name = "productSizeId", nullable = false)
     private ProductSize productSize;

@@ -44,4 +44,18 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(exception.getMessage());
     }
+
+    @ExceptionHandler({ProductSizeTypeConflictException.class})
+    public ResponseEntity<Object> handleProductSizeTypeConflict(ProductSizeTypeConflictException exception){
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({ProductAlreadyExistsException.class})
+    public ResponseEntity<Object> handleProductAlreadyExistsException(ProductAlreadyExistsException exception){
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(exception.getMessage());
+    }
 }

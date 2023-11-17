@@ -82,7 +82,7 @@ public class ProductDto {
         productDto.setAttributes(product.getProductAttributes().stream().map(PlainProductAttributeDto::from).collect(Collectors.toList()));
         productDto.setSizes(product.getProductSizes().stream().map(ProductSizeDto::from).collect(Collectors.toList()));
 
-        productDto.image=image;
+        productDto.setImage(image);
         return productDto;
     }
 }

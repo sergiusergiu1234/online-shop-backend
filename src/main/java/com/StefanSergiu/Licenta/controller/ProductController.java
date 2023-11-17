@@ -58,15 +58,8 @@ public class ProductController {
     }
     @PostMapping("/admin/add")
     public ResponseEntity<?> addProduct(@RequestBody final CreateNewProductModel createNewProductModel){
-        try{
-            Product product = productService.addProduct(createNewProductModel);
-            return new ResponseEntity<>(ProductDto.from(product), HttpStatus.OK);
-        }catch(DataIntegrityViolationException e) {
-            // Handle the exception and send an error response
-
-            String errorMessage = e.getMessage();
-            return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Product product = productService.addProduct(createNewProductModel);
+        return new ResponseEntity<>(ProductDto.from(product), HttpStatus.OK);
     }
 
 
@@ -85,7 +78,7 @@ public class ProductController {
                                                         @RequestParam(name = "sizes", required = false) String sizes,
                                                         @RequestParam(name = "size", defaultValue = "8") int size){
 
-        // Parse attributes parameter into a Map<String, String>
+
         Map<String, String> attributes = new HashMap<>();
         if (attributesParam != null) {
             String[] pairs = attributesParam.split("_");
@@ -96,6 +89,7 @@ public class ProductController {
                 }
             }
         }
+
         ProductRequestModel request = new ProductRequestModel(name,brands,category_name,genders,price, minPrice, maxPrice, type_name,attributes,sizes);
 
         Pageable pageable = PageRequest.of(pageNumber, size, Sort.Direction.ASC,"name");
@@ -119,14 +113,11 @@ public class ProductController {
     public ResponseEntity<ProductDto> deleteProduct(@PathVariable final Long id){
         Product product = productService.getProduct(id);
 
-        if(productRepository.countByName(product.getName())>1) {
-            Product deletedProduct = productService.deleteProduct(id);
-            System.out.println("Am ajuns aici!");
-            return new ResponseEntity<>(ProductDto.from(deletedProduct),HttpStatus.OK);
+        Product deletedProduct = productService.deleteProduct(id);
+        if(product.getImagePath() != null && product.getImageFileName() != null){
+            fileStore.deleteImage(product.getImagePath(), product.getImageFileName());
         }
 
-        Product deletedProduct = productService.deleteProduct(id);
-        fileStore.deleteImage(product.getImagePath(), product.getImageFileName());
         return new ResponseEntity<>(ProductDto.from(deletedProduct),HttpStatus.OK);
     }
 

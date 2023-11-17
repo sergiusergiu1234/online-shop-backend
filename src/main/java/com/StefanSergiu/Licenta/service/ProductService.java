@@ -3,8 +3,10 @@ package com.StefanSergiu.Licenta.service;
 import com.StefanSergiu.Licenta.dto.product.*;
 import com.StefanSergiu.Licenta.dto.productSize.ProductSizeDto;
 import com.StefanSergiu.Licenta.entity.*;
+import com.StefanSergiu.Licenta.exception.ProductAlreadyExistsException;
 import com.StefanSergiu.Licenta.filter.ProductSpecification;
 import com.StefanSergiu.Licenta.repository.*;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -54,6 +56,10 @@ public class ProductService {
 
     @Transactional
         public Product addProduct(CreateNewProductModel createNewProductModel){
+
+            if(productRepository.existsByName(createNewProductModel.getName())){
+                throw new ProductAlreadyExistsException("Product with name "+ createNewProductModel.getName() +" already exists in the database");
+            }
             Product product = new Product();
 
             Brand brand = brandRepository.findByName(createNewProductModel.getBrand_name());
@@ -124,36 +130,28 @@ public class ProductService {
             productRepository.save(product);
         }
 
-    @Async
-    public CompletableFuture<List<ProductCardDto>> downloadImagesAsync(List<Product> products) {
-        return CompletableFuture.supplyAsync(() ->
-                products.parallelStream().map(product -> {
-                    ProductCardDto dto = ProductCardDto.from(product);
-                    String placeholder = "N/A";
-                    byte[] imageData = placeholder.getBytes();
-                    try {
-                        imageData = fileStore.download(product.getImagePath(), product.getImageFileName());
-                        System.out.println("Image downloaded for product: " + product.getId());
-                    } catch (Exception e) {
-                        System.err.println("Error downloading image for product: " + product.getId());
-                        e.printStackTrace();
-                    }
-                    dto.setImage(imageData);
-                    return dto;
-                }).collect(Collectors.toList())
-        );
+    public Page<ProductCardDto> filterProducts(ProductRequestModel request, Pageable pageable){
+        Page<Product> productsPage = productRepository.findAll(productSpecification.getProducts(request), pageable);
+        List<Product> products = productsPage.getContent();
+        List <ProductCardDto>productCardDtos = new ArrayList<>();
+        for(Product product : products){
+            ProductCardDto dto = ProductCardDto.from(product);
+            String placeholder = "N/A";
+            byte[] imageData = placeholder.getBytes();
+            try{
+                imageData  = fileStore.download(product.getImagePath(), product.getImageFileName());
+            }catch(Exception e){
+                System.out.println("Image field is null");
+            }
+            System.out.println("image downloaded");
+            dto.setImage(imageData);
+
+            productCardDtos.add(dto);
+        }
+
+
+        return new PageImpl<>(productCardDtos, pageable, productsPage.getTotalElements());
     }
-        @Transactional
-        public Page<ProductCardDto> filterProducts(ProductRequestModel request, Pageable pageable){
-            Page<Product> productsPage = productRepository.findAll(productSpecification.getProducts(request), pageable);
-            List<Product> products = productsPage.getContent();
-
-            CompletableFuture<List<ProductCardDto>> productCardDtosFuture = downloadImagesAsync(products);
-            List<ProductCardDto> productCardDtos =productCardDtosFuture.join();
-
-            return new PageImpl<>(productCardDtos, pageable,products.size());}
-
-
     public Product getProduct(Long productId) {
         return productRepository.findById(productId).orElseThrow(()->
                 new EntityNotFoundException("Product with id " + productId + " does not exist"));
@@ -161,28 +159,29 @@ public class ProductService {
     public ProductDto getProductByName(String productName) {
         Product product = productRepository.findByName(productName);
         ProductDto productDto = ProductDto.from(product);
+        String placeholder = "N/A";
+        byte[] imageData = placeholder.getBytes();
         try{
-            productDto.setImage(fileStore.download(product.getImagePath(), product.getImageFileName()));
+            imageData = fileStore.download(product.getImagePath(), product.getImageFileName());
+            System.out.println("Image downloaded for product: " + product.getId());
         }catch(IllegalArgumentException exception){
-            String placeholder = "N/A";
-            byte[] imageData = placeholder.getBytes();
-            productDto.setImage(imageData);
-            System.out.println("couldn't do the do");
+            productDto.setImage(placeholder.getBytes());
+            System.out.println("Not logged in");
+        }catch(MalformedJwtException exception){
+            System.out.println("Not logged in");
         }
+
 
         try{
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
             UserInfo user = userService.getLoggedInUser(username);
             Integer userId = user.getId();
-
-
-            List<Favorite> favorites = new ArrayList<>();
-            favorites = favoriteService.getFavoriteByUser(userId);
+            List<Favorite> favorites = favoriteService.getFavoriteByUser(userId);
 
             for(ProductSizeDto productSizeDto : productDto.getSizes()){
                 boolean isFavorite = favorites.stream()
-                        .anyMatch(favorite -> favorite.getProductSize().getProductSizeId().equals(productSizeDto.getProductId()));
+                        .anyMatch(favorite -> favorite.getProductSize().getProductSizeId().equals(productSizeDto.getProductSizeId()));
 
                 productSizeDto.setFavorite(isFavorite);
             }

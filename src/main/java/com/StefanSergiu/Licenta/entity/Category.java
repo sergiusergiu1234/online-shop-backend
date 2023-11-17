@@ -17,7 +17,7 @@ public class Category {
     @Column(nullable = false,unique = true)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id",nullable = false)
     @JsonIgnoreProperties("categories")
     private Type type;

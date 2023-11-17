@@ -26,7 +26,7 @@ public class Size {
     @OneToMany(mappedBy = "size",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProductSize> productSizes;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id",nullable = false)
     private Type type;
 

@@ -2,6 +2,7 @@ package com.StefanSergiu.Licenta.service;
 
 import com.StefanSergiu.Licenta.dto.productSize.NewProductSizeModel;
 import com.StefanSergiu.Licenta.entity.*;
+import com.StefanSergiu.Licenta.exception.ProductSizeTypeConflictException;
 import com.StefanSergiu.Licenta.repository.ProductRepository;
 import com.StefanSergiu.Licenta.repository.ProductSizeRepository;
 import com.StefanSergiu.Licenta.repository.SizeRepository;
@@ -46,12 +47,18 @@ public class ProductSizeService {
                 .orElseThrow(()->new EntityNotFoundException("Product with id "+ newProductSizeModel.getProductId() +" not found"));
         Size size = sizeRepository.findById(newProductSizeModel.getSizeId())
                 .orElseThrow(()->new EntityNotFoundException(("Size with id " + newProductSizeModel.getSizeId()+ " not found")));
-        ProductSize productSize = new ProductSize();
-        productSize.setProduct(product);
-        productSize.setSize(size);
-        productSize.setStock(newProductSizeModel.getStock());
-        productSizeRepository.save(productSize);
-        return productSize;
+        if(product.getCategory().getType().equals(size.getType())){
+            ProductSize productSize = new ProductSize();
+            productSize.setProduct(product);
+            productSize.setSize(size);
+            productSize.setStock(newProductSizeModel.getStock());
+            productSizeRepository.save(productSize);
+            return productSize;
+        }else{
+            throw new ProductSizeTypeConflictException("Product was linked to type id "+ product.getCategory().getType().getId()
+                    +", and the linked size is linked to type with id" + size.getType().getId()
+                    +". They must have the same type.");
+        }
     }
     @Transactional
     public ProductSize deleteProductSize(Long productSizeId){

@@ -26,7 +26,7 @@ public class Attribute{
     private Long id;
     @Column(nullable = false)
     private String name;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id",nullable = false)
     private Type type;
     @OneToMany(mappedBy = "attribute",cascade = CascadeType.ALL,orphanRemoval = true)

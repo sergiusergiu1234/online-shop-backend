@@ -97,8 +97,7 @@ public class ProductSpecification {
             }
         }
 
-        //order by
-        query.orderBy(criteriaBuilder.desc(root.get("price")));
+
 
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     };

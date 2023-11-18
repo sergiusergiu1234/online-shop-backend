@@ -6,7 +6,6 @@ import com.StefanSergiu.Licenta.entity.*;
 import com.StefanSergiu.Licenta.exception.ProductAlreadyExistsException;
 import com.StefanSergiu.Licenta.filter.ProductSpecification;
 import com.StefanSergiu.Licenta.repository.*;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -93,7 +92,8 @@ public class ProductService {
 
 
         public byte[] downloadProductImage(Long id) {
-            Product product = productRepository.findById(id).get();
+            Product product = productRepository.findById(id)
+                    .orElseThrow(()->new EntityNotFoundException("Product with id " +id+ " not found"));
             return fileStore.download(product.getImagePath(), product.getImageFileName());
         }
 
@@ -133,24 +133,17 @@ public class ProductService {
     public Page<ProductCardDto> filterProducts(ProductRequestModel request, Pageable pageable){
         Page<Product> productsPage = productRepository.findAll(productSpecification.getProducts(request), pageable);
         List<Product> products = productsPage.getContent();
-        List <ProductCardDto>productCardDtos = new ArrayList<>();
-        for(Product product : products){
-            ProductCardDto dto = ProductCardDto.from(product);
-            String placeholder = "N/A";
-            byte[] imageData = placeholder.getBytes();
-            try{
-                imageData  = fileStore.download(product.getImagePath(), product.getImageFileName());
-            }catch(Exception e){
-                System.out.println("Image field is null");
-            }
-            System.out.println("image downloaded");
-            dto.setImage(imageData);
+        Iterator<Product> productIterator = products.iterator();
+        List<ProductCardDto> productCardDtos = new ArrayList<>();
 
+        while (productIterator.hasNext()) {
+            Product product = productIterator.next();
+            ProductCardDto dto = ProductCardDto.from(product);
             productCardDtos.add(dto);
         }
+        int totalElements = (int) productsPage.getTotalElements();
 
-
-        return new PageImpl<>(productCardDtos, pageable, productsPage.getTotalElements());
+        return new PageImpl<>(productCardDtos, pageable, totalElements);
     }
     public Product getProduct(Long productId) {
         return productRepository.findById(productId).orElseThrow(()->
@@ -159,29 +152,20 @@ public class ProductService {
     public ProductDto getProductByName(String productName) {
         Product product = productRepository.findByName(productName);
         ProductDto productDto = ProductDto.from(product);
-        String placeholder = "N/A";
-        byte[] imageData = placeholder.getBytes();
-        try{
-            imageData = fileStore.download(product.getImagePath(), product.getImageFileName());
-            System.out.println("Image downloaded for product: " + product.getId());
-        }catch(IllegalArgumentException exception){
-            productDto.setImage(placeholder.getBytes());
-            System.out.println("Not logged in");
-        }catch(MalformedJwtException exception){
-            System.out.println("Not logged in");
-        }
-
 
         try{
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
             UserInfo user = userService.getLoggedInUser(username);
             Integer userId = user.getId();
-            List<Favorite> favorites = favoriteService.getFavoriteByUser(userId);
+
+
+            List<Favorite> favorites = new ArrayList<>();
+            favorites = favoriteService.getFavoriteByUser(userId);
 
             for(ProductSizeDto productSizeDto : productDto.getSizes()){
                 boolean isFavorite = favorites.stream()
-                        .anyMatch(favorite -> favorite.getProductSize().getProductSizeId().equals(productSizeDto.getProductSizeId()));
+                        .anyMatch(favorite -> favorite.getProductSize().getProductSizeId().equals(productSizeDto.getProductId()));
 
                 productSizeDto.setFavorite(isFavorite);
             }

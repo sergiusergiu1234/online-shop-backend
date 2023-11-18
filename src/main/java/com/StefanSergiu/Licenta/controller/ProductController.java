@@ -17,9 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -103,10 +101,9 @@ public class ProductController {
     @PreAuthorize("permitAll()")
     @GetMapping(value ="/Page/{productName}")
     public ResponseEntity<ProductDto> getProductDetails(@PathVariable final String productName){
-
         ProductDto productDto = productService.getProductByName(productName);
-
-        return new ResponseEntity<>(productDto,HttpStatus.OK);
+        CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.HOURS);
+        return ResponseEntity.ok().cacheControl(cacheControl).body(productDto);
     }
 
     @DeleteMapping(value ="/admin/{id}")
@@ -122,9 +119,12 @@ public class ProductController {
     }
 
     @GetMapping(value = "{id}/image/download")
-    public byte[] downloadProductImage(@PathVariable("id") Long id){
-        Product product = productService.getProduct(id);
-        return fileStore.download(product.getImagePath(), product.getImageFileName());
+    public ResponseEntity<String> downloadProductImage(@PathVariable("id") Long id){
+        byte[] imageData = productService.downloadProductImage(id);
+        String base64Image = Base64.getEncoder().encodeToString(imageData);
+        CacheControl cacheControl = CacheControl.maxAge(50, TimeUnit.MINUTES);
+        return ResponseEntity.ok().cacheControl(cacheControl).body(base64Image);
+
     }
     @PostMapping(value = "/admin/add-image/{id}")
         public ResponseEntity<String> addProductImage(@PathVariable Long id, @RequestParam("file")MultipartFile file) {

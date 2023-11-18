@@ -10,25 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ProductCardDto {
+public class ProductCardDto implements ProductCardProjection{
     private Long id;
     private String name;
     private Float price;
-    private byte[] image;
-    private List<SizeDto> sizes;
-    public ProductCardDto() {
-        this.sizes = new ArrayList<>();
-    }
     public static ProductCardDto from(Product product){
         ProductCardDto productCardDto = new ProductCardDto();
         productCardDto.setId(product.getId());
         productCardDto.setName(product.getName());
         productCardDto.setPrice(product.getPrice());
-        for(ProductSize size : product.getProductSizes()){
-            productCardDto.sizes.add(SizeDto.fromProductSize(size));
-        }
-
-        //image is set in service
         return productCardDto;
     }
 }

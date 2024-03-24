@@ -22,7 +22,7 @@ public class AmazonConfig {
 
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey,secretKey);
         return AmazonS3ClientBuilder
-                .standard().withRegion("eu-central-1")
+                .standard().withRegion("eu-north-1")
                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                 .build();
     }

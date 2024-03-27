@@ -96,7 +96,7 @@ public class UserController {
 
     @GetMapping("/wake")
     public ResponseEntity<?> wakeApp(){
-        return ResponseEntity.ok("Cron job!");
+        return ResponseEntity.ok(null);
     }
 
 }

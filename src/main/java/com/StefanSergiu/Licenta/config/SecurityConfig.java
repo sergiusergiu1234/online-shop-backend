@@ -60,7 +60,7 @@ public class SecurityConfig {
         return http.cors().and().csrf().disable()
                 .authorizeHttpRequests()
                 .requestMatchers(
-                        "/users/signup","/users/signin","/users/signout",
+                        "/users/signup","/users/signin","/users/signout","/users/wake",
                         "/brands/all","/types/all",
                         "/categories/all","/brands/**","/products/**","/genders/**",
                         "/types/**","/attributes/**","/productAttributes/**",
